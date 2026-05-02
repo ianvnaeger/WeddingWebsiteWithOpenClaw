@@ -63,5 +63,5 @@ Why:
 
 - **Netlify**: probably the easiest overall
 - **Cloudflare Pages**: fast and inexpensive
-- **GitHub Pages**: simple if you want a lightweight setup
+- **GitHub Pages**: simple for user/org pages; for project pages under `/<repo>/`, set Vite's `base` to match the repo path
 - **Vercel**: also a solid fit for Vite projects
