@@ -40,11 +40,23 @@ function SectionHeading({ kicker, title, narrow = false, children }) {
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const desktopNavBreakpoint = 768
 
   useEffect(() => {
-    const closeMenu = () => setMenuOpen(false)
-    window.addEventListener('resize', closeMenu)
-    return () => window.removeEventListener('resize', closeMenu)
+    const mediaQuery = window.matchMedia(`(min-width: ${desktopNavBreakpoint}px)`)
+    const handleBreakpointChange = (event) => {
+      if (event.matches) {
+        setMenuOpen(false)
+      }
+    }
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', handleBreakpointChange)
+      return () => mediaQuery.removeEventListener('change', handleBreakpointChange)
+    }
+
+    mediaQuery.addListener(handleBreakpointChange)
+    return () => mediaQuery.removeListener(handleBreakpointChange)
   }, [])
 
   useEffect(() => {
