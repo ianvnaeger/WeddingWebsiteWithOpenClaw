@@ -40,10 +40,10 @@ function SectionHeading({ kicker, title, narrow = false, children }) {
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const desktopNavBreakpoint = 768
+  const mobileNavMaxWidth = 640
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia(`(min-width: ${desktopNavBreakpoint}px)`)
+    const mediaQuery = window.matchMedia(`(min-width: ${mobileNavMaxWidth + 1}px)`)
     const handleBreakpointChange = (event) => {
       if (event.matches) {
         setMenuOpen(false)
