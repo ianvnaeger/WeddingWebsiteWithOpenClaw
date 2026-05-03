@@ -270,6 +270,7 @@ export default function App() {
                   className={`gallery-thumb ${index === galleryIndex ? 'is-active' : ''}`}
                   onClick={() => setGalleryIndex(index)}
                   aria-label={`Show photo ${index + 1}: ${photo.label}`}
+                  aria-current={index === galleryIndex ? 'true' : undefined}
                 >
                   <img src={photo.src} alt="" aria-hidden="true" />
                 </button>
