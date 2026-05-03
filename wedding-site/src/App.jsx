@@ -28,37 +28,69 @@ const registryLinks = [
   { label: 'Registry Two', href: '#' },
 ]
 
+const galleryPhotoWidths = [480, 800, 1280]
+
+function buildPhotoSrc(baseName, extension, width) {
+  return `/photos/${baseName}-${width}.${extension}`
+}
+
+function buildPhotoSrcSet(baseName, extension) {
+  return galleryPhotoWidths
+    .map((width) => `${buildPhotoSrc(baseName, extension, width)} ${width}w`)
+    .join(', ')
+}
+
+function createResponsivePhoto(baseName, fallbackWidth, alt, label) {
+  return {
+    src: buildPhotoSrc(baseName, 'jpg', fallbackWidth),
+    jpgSrcSet: buildPhotoSrcSet(baseName, 'jpg'),
+    webpSrcSet: buildPhotoSrcSet(baseName, 'webp'),
+    avifSrcSet: buildPhotoSrcSet(baseName, 'avif'),
+    sizes: '(max-width: 768px) 92vw, (max-width: 1200px) 50vw, 33vw',
+    loading: 'lazy',
+    decoding: 'async',
+    alt,
+    label,
+  }
+}
+
 const galleryPhotos = [
-  {
-    src: '/photos/fuji-bell.jpg',
-    alt: 'Ian and Sarah standing together beneath a heart-shaped bell with Mount Fuji in the background.',
-    label: 'Fuji Vista',
-  },
-  {
-    src: '/photos/proposal-snow.jpg',
-    alt: 'Ian proposing to Sarah on a snowy overlook at dusk.',
-    label: 'Proposal',
-  },
-  {
-    src: '/photos/tent-kiss.jpg',
-    alt: 'Ian kissing Sarah on the cheek under string lights at an outdoor celebration.',
-    label: 'Celebration',
-  },
-  {
-    src: '/photos/yukata.jpg',
-    alt: 'Ian and Sarah standing together in yukata with a mountain view behind them.',
-    label: 'Japan',
-  },
-  {
-    src: '/photos/neon-lounge.jpg',
-    alt: 'Ian and Sarah laughing together in a neon-lit lounge.',
-    label: 'Night Out',
-  },
-  {
-    src: '/photos/stadium-selfie.jpg',
-    alt: 'Ian and Sarah smiling together at a stadium.',
-    label: 'Game Day',
-  },
+  createResponsivePhoto(
+    'fuji-bell',
+    800,
+    'Ian and Sarah standing together beneath a heart-shaped bell with Mount Fuji in the background.',
+    'Fuji Vista',
+  ),
+  createResponsivePhoto(
+    'proposal-snow',
+    800,
+    'Ian proposing to Sarah on a snowy overlook at dusk.',
+    'Proposal',
+  ),
+  createResponsivePhoto(
+    'tent-kiss',
+    800,
+    'Ian kissing Sarah on the cheek under string lights at an outdoor celebration.',
+    'Celebration',
+  ),
+  createResponsivePhoto(
+    'yukata',
+    800,
+    'Ian and Sarah standing together in yukata with a mountain view behind them.',
+    'Japan',
+  ),
+  createResponsivePhoto(
+    'neon-lounge',
+    800,
+    'Ian and Sarah laughing together in a neon-lit lounge.',
+    'Night Out',
+  ),
+  createResponsivePhoto(
+    'stadium-selfie',
+    800,
+    'Ian and Sarah smiling together at a stadium.',
+    'Game Day',
+  ),
 ]
 
 function SectionHeading({ kicker, title, narrow = false, children }) {
