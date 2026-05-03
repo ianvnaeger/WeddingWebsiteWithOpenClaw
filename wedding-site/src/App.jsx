@@ -28,6 +28,39 @@ const registryLinks = [
   { label: 'Registry Two', href: '#' },
 ]
 
+const galleryPhotos = [
+  {
+    src: '/photos/fuji-bell.jpg',
+    alt: 'Ian and Sarah standing together beneath a heart-shaped bell with Mount Fuji in the background.',
+    label: 'Fuji Vista',
+  },
+  {
+    src: '/photos/proposal-snow.jpg',
+    alt: 'Ian proposing to Sarah on a snowy overlook at dusk.',
+    label: 'Proposal',
+  },
+  {
+    src: '/photos/tent-kiss.jpg',
+    alt: 'Ian kissing Sarah on the cheek under string lights at an outdoor celebration.',
+    label: 'Celebration',
+  },
+  {
+    src: '/photos/yukata.jpg',
+    alt: 'Ian and Sarah standing together in yukata with a mountain view behind them.',
+    label: 'Japan',
+  },
+  {
+    src: '/photos/neon-lounge.jpg',
+    alt: 'Ian and Sarah laughing together in a neon-lit lounge.',
+    label: 'Night Out',
+  },
+  {
+    src: '/photos/stadium-selfie.jpg',
+    alt: 'Ian and Sarah smiling together at a stadium.',
+    label: 'Game Day',
+  },
+]
+
 function SectionHeading({ kicker, title, narrow = false, children }) {
   return (
     <div className={`section-copy ${narrow ? 'narrow' : ''}`}>
@@ -40,7 +73,18 @@ function SectionHeading({ kicker, title, narrow = false, children }) {
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [galleryIndex, setGalleryIndex] = useState(0)
   const mobileNavMaxWidth = 640
+
+  const currentPhoto = galleryPhotos[galleryIndex]
+
+  const showPrevPhoto = () => {
+    setGalleryIndex((index) => (index - 1 + galleryPhotos.length) % galleryPhotos.length)
+  }
+
+  const showNextPhoto = () => {
+    setGalleryIndex((index) => (index + 1) % galleryPhotos.length)
+  }
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(`(min-width: ${mobileNavMaxWidth + 1}px)`)
@@ -69,39 +113,41 @@ export default function App() {
   return (
     <>
       <header className="hero">
-        <nav className="nav">
-          <div className="brand">Ian & Sarah</div>
+        <div className="hero-shell">
+          <nav className="nav">
+            <div className="brand">Ian & Sarah</div>
 
-          <button
-            type="button"
-            className={`nav-toggle ${menuOpen ? 'is-open' : ''}`}
-            aria-expanded={menuOpen}
-            aria-label="Toggle navigation menu"
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            <span />
-            <span />
-            <span />
-          </button>
+            <button
+              type="button"
+              className={`nav-toggle ${menuOpen ? 'is-open' : ''}`}
+              aria-expanded={menuOpen}
+              aria-label="Toggle navigation menu"
+              onClick={() => setMenuOpen((open) => !open)}
+            >
+              <span />
+              <span />
+              <span />
+            </button>
 
-          <div className={`nav-links ${menuOpen ? 'is-open' : ''}`}>
-            {navLinks.map((link) => (
-              <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)}>
-                {link.label}
-              </a>
-            ))}
-          </div>
-        </nav>
+            <div className={`nav-links ${menuOpen ? 'is-open' : ''}`}>
+              {navLinks.map((link) => (
+                <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)}>
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          </nav>
 
-        <div className={`nav-backdrop ${menuOpen ? 'is-open' : ''}`} onClick={() => setMenuOpen(false)} />
+          <div className={`nav-backdrop ${menuOpen ? 'is-open' : ''}`} onClick={() => setMenuOpen(false)} />
 
-        <div className="hero-content">
-          <p className="eyebrow">Save the date</p>
-          <h1>We’re getting married</h1>
-          <p className="hero-text">Saturday, October 31, 2026 • Kansas City, Missouri</p>
-          <div className="hero-actions">
-            <a className="button" href="#rsvp">RSVP</a>
-            <a className="button button-secondary" href="#details">View details</a>
+          <div className="hero-content">
+            <p className="eyebrow">Save the date</p>
+            <h1>Saturday, October 31, 2026 • Kansas City, Missouri</h1>
+            <p className="hero-subtitle">We’re getting married</p>
+            <div className="hero-actions">
+              <a className="button" href="#rsvp">RSVP</a>
+              <a className="button button-secondary" href="#details">View details</a>
+            </div>
           </div>
         </div>
       </header>
@@ -127,10 +173,8 @@ export default function App() {
               We’re so excited to gather with the people we love most for a fall wedding weekend in Kansas City.
             </p>
           </div>
-          <div className="quote-card">
-            <p>
-              “We’re so glad you’ll be part of this with us. More story details, photos, or a note to guests can go here.”
-            </p>
+          <div className="quote-card photo-callout">
+            <img src="/photos/proposal-snow.jpg" alt="Ian proposing to Sarah on a snowy overlook at dusk." />
           </div>
         </section>
 
@@ -163,6 +207,42 @@ export default function App() {
               You can replace this section with your actual hotel links, shuttle timing, welcome party plans,
               child care notes, or accessibility information.
             </p>
+          </div>
+        </section>
+
+        <section className="section">
+          <SectionHeading kicker="Gallery" title="A few favorite moments." />
+          <div className="gallery-viewer">
+            <figure className="gallery-stage">
+              <img src={currentPhoto.src} alt={currentPhoto.alt} />
+            </figure>
+
+            <div className="gallery-controls">
+              <button type="button" className="gallery-button" onClick={showPrevPhoto}>
+                Previous
+              </button>
+              <div className="gallery-meta">
+                <div className="gallery-caption">{currentPhoto.label}</div>
+                <div className="gallery-count">{galleryIndex + 1} / {galleryPhotos.length}</div>
+              </div>
+              <button type="button" className="gallery-button" onClick={showNextPhoto}>
+                Next
+              </button>
+            </div>
+
+            <div className="gallery-thumbs">
+              {galleryPhotos.map((photo, index) => (
+                <button
+                  type="button"
+                  key={photo.src}
+                  className={`gallery-thumb ${index === galleryIndex ? 'is-active' : ''}`}
+                  onClick={() => setGalleryIndex(index)}
+                  aria-label={`Show photo ${index + 1}: ${photo.label}`}
+                >
+                  <img src={photo.src} alt="" aria-hidden="true" />
+                </button>
+              ))}
+            </div>
           </div>
         </section>
 
