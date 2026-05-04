@@ -4,6 +4,7 @@ const navLinks = [
   { label: 'Our Story', href: '#story' },
   { label: 'Details', href: '#details' },
   { label: 'Travel', href: '#travel' },
+  { label: 'Things to Do', href: '#things-to-do' },
   { label: 'Registry', href: '#registry' },
   { label: 'RSVP', href: '#rsvp' },
 ]
@@ -29,9 +30,14 @@ const registryLinks = [
 ]
 
 const galleryPhotoWidths = [480, 800, 1280]
+const assetBase = import.meta.env.BASE_URL
+
+function withBase(path) {
+  return `${assetBase}${path}`
+}
 
 function buildPhotoSrc(baseName, extension, width) {
-  return `/photos/${baseName}-${width}.${extension}`
+  return withBase(`photos/${baseName}-${width}.${extension}`)
 }
 
 function buildPhotoSrcSet(baseName, extension) {
@@ -144,7 +150,12 @@ export default function App() {
 
   return (
     <>
-      <header className="hero">
+      <header
+        className="hero"
+        style={{
+          backgroundImage: `linear-gradient(rgba(20, 12, 10, 0.36), rgba(20, 12, 10, 0.64)), url(${withBase('photos/fuji-bell.jpg')})`,
+        }}
+      >
         <div className="hero-shell">
           <nav className="nav">
             <div className="brand">Ian & Sarah</div>
@@ -206,7 +217,7 @@ export default function App() {
             </p>
           </div>
           <div className="quote-card photo-callout">
-            <img src="/photos/proposal-snow.jpg" alt="Ian proposing to Sarah on a snowy overlook at dusk." />
+            <img src={withBase('photos/proposal-snow.jpg')} alt="Ian proposing to Sarah on a snowy overlook at dusk." />
           </div>
         </section>
 
@@ -239,6 +250,26 @@ export default function App() {
               You can replace this section with your actual hotel links, shuttle timing, welcome party plans,
               child care notes, or accessibility information.
             </p>
+          </div>
+        </section>
+
+        <section id="things-to-do" className="section things-section">
+          <SectionHeading kicker="Things to do" title="Make a weekend of it in Kansas City.">
+            <p>
+              We’ll add some of our favorite spots and local recommendations here so out-of-town guests can explore a little while they’re in town.
+            </p>
+          </SectionHeading>
+          <div className="things-card">
+            <ul className="things-list">
+              <li>
+                Visit some of our favorite restaurants
+                <ul>
+                  <li>Add restaurant names here</li>
+                </ul>
+              </li>
+              <li>Add another KC recommendation here</li>
+              <li>Add another KC activity or neighborhood here</li>
+            </ul>
           </div>
         </section>
 

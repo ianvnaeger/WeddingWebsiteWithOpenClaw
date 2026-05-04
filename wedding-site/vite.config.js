@@ -1,10 +1,13 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig({
+const githubPagesBase = process.env.GITHUB_PAGES_BASE || '/WeddingWebsiteWithOpenClaw/'
+
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? githubPagesBase : '/',
   plugins: [react()],
   server: {
     host: '0.0.0.0',
     port: 4173,
   },
-})
+}))
