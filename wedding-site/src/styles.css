@@ -287,11 +287,18 @@ a {
   margin-top: clamp(32px, 4vw, 48px);
 }
 
+.quote-card,
+.info-card,
+.registry-card,
+.gallery-viewer,
 .things-card {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--surface-strong);
   box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
+}
+
+.things-card {
   padding: clamp(24px, 4vw, 32px);
 }
 
