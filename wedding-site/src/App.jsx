@@ -30,9 +30,14 @@ const registryLinks = [
 ]
 
 const galleryPhotoWidths = [480, 800, 1280]
+const assetBase = import.meta.env.BASE_URL
+
+function withBase(path) {
+  return `${assetBase}${path}`
+}
 
 function buildPhotoSrc(baseName, extension, width) {
-  return `/photos/${baseName}-${width}.${extension}`
+  return withBase(`photos/${baseName}-${width}.${extension}`)
 }
 
 function buildPhotoSrcSet(baseName, extension) {
@@ -145,7 +150,12 @@ export default function App() {
 
   return (
     <>
-      <header className="hero">
+      <header
+        className="hero"
+        style={{
+          backgroundImage: `linear-gradient(rgba(20, 12, 10, 0.36), rgba(20, 12, 10, 0.64)), url(${withBase('photos/fuji-bell.jpg')})`,
+        }}
+      >
         <div className="hero-shell">
           <nav className="nav">
             <div className="brand">Ian & Sarah</div>
@@ -207,7 +217,7 @@ export default function App() {
             </p>
           </div>
           <div className="quote-card photo-callout">
-            <img src="/photos/proposal-snow.jpg" alt="Ian proposing to Sarah on a snowy overlook at dusk." />
+            <img src={withBase('photos/proposal-snow.jpg')} alt="Ian proposing to Sarah on a snowy overlook at dusk." />
           </div>
         </section>
 

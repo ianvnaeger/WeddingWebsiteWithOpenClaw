@@ -48,9 +48,8 @@ a {
 .hero {
   min-height: 100svh;
   padding: 24px clamp(18px, 4vw, 40px) 56px;
-  background:
-    linear-gradient(rgba(20, 12, 10, 0.36), rgba(20, 12, 10, 0.64)),
-    url('/photos/fuji-bell.jpg') center 40% / cover;
+  background-position: center 40%;
+  background-size: cover;
 }
 
 .hero-shell {
