@@ -29,30 +29,15 @@ const registryLinks = [
   { label: 'Registry Two', href: '#' },
 ]
 
-const galleryPhotoWidths = [480, 800, 1280]
 const assetBase = import.meta.env.BASE_URL
 
 function withBase(path) {
   return `${assetBase}${path}`
 }
 
-function buildPhotoSrc(baseName, extension, width) {
-  return withBase(`photos/${baseName}-${width}.${extension}`)
-}
-
-function buildPhotoSrcSet(baseName, extension) {
-  return galleryPhotoWidths
-    .map((width) => `${buildPhotoSrc(baseName, extension, width)} ${width}w`)
-    .join(', ')
-}
-
-function createResponsivePhoto(baseName, fallbackWidth, alt, label) {
+function createPhoto(fileName, alt, label) {
   return {
-    src: buildPhotoSrc(baseName, 'jpg', fallbackWidth),
-    jpgSrcSet: buildPhotoSrcSet(baseName, 'jpg'),
-    webpSrcSet: buildPhotoSrcSet(baseName, 'webp'),
-    avifSrcSet: buildPhotoSrcSet(baseName, 'avif'),
-    sizes: '(max-width: 768px) 92vw, (max-width: 1200px) 50vw, 33vw',
+    src: withBase(`photos/${fileName}`),
     loading: 'lazy',
     decoding: 'async',
     alt,
@@ -61,39 +46,33 @@ function createResponsivePhoto(baseName, fallbackWidth, alt, label) {
 }
 
 const galleryPhotos = [
-  createResponsivePhoto(
-    'fuji-bell',
-    800,
+  createPhoto(
+    'fuji-bell.jpg',
     'Ian and Sarah standing together beneath a heart-shaped bell with Mount Fuji in the background.',
     'Fuji Vista',
   ),
-  createResponsivePhoto(
-    'proposal-snow',
-    800,
+  createPhoto(
+    'proposal-snow.jpg',
     'Ian proposing to Sarah on a snowy overlook at dusk.',
     'Proposal',
   ),
-  createResponsivePhoto(
-    'tent-kiss',
-    800,
+  createPhoto(
+    'tent-kiss.jpg',
     'Ian kissing Sarah on the cheek under string lights at an outdoor celebration.',
     'Celebration',
   ),
-  createResponsivePhoto(
-    'yukata',
-    800,
+  createPhoto(
+    'yukata.jpg',
     'Ian and Sarah standing together in yukata with a mountain view behind them.',
     'Japan',
   ),
-  createResponsivePhoto(
-    'neon-lounge',
-    800,
+  createPhoto(
+    'neon-lounge.jpg',
     'Ian and Sarah laughing together in a neon-lit lounge.',
     'Night Out',
   ),
-  createResponsivePhoto(
-    'stadium-selfie',
-    800,
+  createPhoto(
+    'stadium-selfie.jpg',
     'Ian and Sarah smiling together at a stadium.',
     'Game Day',
   ),
