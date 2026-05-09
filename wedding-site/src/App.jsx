@@ -197,7 +197,10 @@ export default function App() {
 
       <main>
         <section className="section section-intro">
-          <SectionHeading kicker="Welcome" title="We can’t wait to celebrate with you in Kansas City." narrow>
+          <SectionHeading kicker="Welcome" title="Hi Mom!" narrow>
+            <p>
+              Saturday, October 31, 2026 • Kansas City, Missouri
+            </p>
             <p>
               We made this site to keep everything in one place. You’ll find the weekend schedule,
               venue details, hotel suggestions, and gift registry information below.
