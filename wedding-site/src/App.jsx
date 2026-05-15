@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 const navLinks = [
   { label: 'Our Story', href: '#story' },
   { label: 'Details', href: '#details' },
-  { label: 'Travel', href: '#travel' },
+  { label: 'Hotel Blocks', href: '#hotel-blocks' },
   { label: 'Things to Do', href: '#things-to-do' },
   { label: 'Registry', href: '#registry' },
   { label: 'RSVP', href: '#rsvp' },
@@ -12,11 +12,11 @@ const navLinks = [
 const detailCards = [
   {
     title: 'Ceremony',
-    lines: ['Saturday, October 31, 2026', 'Union', 'Kansas City, MO'],
+    lines: ['Saturday, October 31, 2026', '5:00 PM', 'Union Wedding Venue', '1721 Baltimore Ave, Kansas City, MO 64108'],
   },
   {
     title: 'Reception',
-    lines: ['Following the ceremony', 'Reception details to come', 'Dinner, dancing, dessert, and happy tears'],
+    lines: ['Immediately following the ceremony', 'Union Wedding Venue', 'Dinner, dancing, dessert, and happy tears'],
   },
   {
     title: 'Dress code',
@@ -29,71 +29,73 @@ const registryLinks = [
   { label: 'Registry Two', href: '#' },
 ]
 
-const galleryPhotoWidths = [480, 800, 1280]
+const hotelBlocks = [
+  {
+    name: 'Hotel Phillips',
+    rate: '$189 + tax',
+    walkTime: 'About an 11 minute walk to the venue',
+    availableDates: 'Friday, October 30 through Sunday, November 1',
+    bookBy: 'Tuesday, September 29',
+  },
+  {
+    name: 'Courtyard Kansas City Downtown',
+    rate: '$199 + tax',
+    walkTime: 'About a 9 minute walk to the venue',
+    availableDates: 'Thursday, October 29 through Sunday, November 1',
+    bookBy: 'Wednesday, October 7',
+  },
+]
+
+const hotelBookingLink = 'https://book.passkey.com/go/BondurantNaeger'
+
+const travelCoordinator = {
+  email: 'Help@EngagedSourcing.com',
+  phone: '720.593.8534',
+  reference: 'Bondurant-Naeger Wedding',
+}
+
 const assetBase = import.meta.env.BASE_URL
 
 function withBase(path) {
   return `${assetBase}${path}`
 }
 
-function buildPhotoSrc(baseName, extension, width) {
-  return withBase(`photos/${baseName}-${width}.${extension}`)
-}
-
-function buildPhotoSrcSet(baseName, extension) {
-  return galleryPhotoWidths
-    .map((width) => `${buildPhotoSrc(baseName, extension, width)} ${width}w`)
-    .join(', ')
-}
-
-function createResponsivePhoto(baseName, fallbackWidth, alt, label) {
+function createPhoto(fileName, alt, label) {
   return {
-    src: buildPhotoSrc(baseName, 'jpg', fallbackWidth),
-    jpgSrcSet: buildPhotoSrcSet(baseName, 'jpg'),
-    webpSrcSet: buildPhotoSrcSet(baseName, 'webp'),
-    avifSrcSet: buildPhotoSrcSet(baseName, 'avif'),
-    sizes: '(max-width: 768px) 92vw, (max-width: 1200px) 50vw, 33vw',
-    loading: 'lazy',
-    decoding: 'async',
+    src: withBase(`photos/${fileName}`),
     alt,
     label,
   }
 }
 
 const galleryPhotos = [
-  createResponsivePhoto(
-    'fuji-bell',
-    800,
+  createPhoto(
+    'fuji-bell.jpg',
     'Ian and Sarah standing together beneath a heart-shaped bell with Mount Fuji in the background.',
     'Fuji Vista',
   ),
-  createResponsivePhoto(
-    'proposal-snow',
-    800,
+  createPhoto(
+    'proposal-snow.jpg',
     'Ian proposing to Sarah on a snowy overlook at dusk.',
     'Proposal',
   ),
-  createResponsivePhoto(
-    'tent-kiss',
-    800,
+  createPhoto(
+    'tent-kiss.jpg',
     'Ian kissing Sarah on the cheek under string lights at an outdoor celebration.',
     'Celebration',
   ),
-  createResponsivePhoto(
-    'yukata',
-    800,
+  createPhoto(
+    'yukata.jpg',
     'Ian and Sarah standing together in yukata with a mountain view behind them.',
     'Japan',
   ),
-  createResponsivePhoto(
-    'neon-lounge',
-    800,
+  createPhoto(
+    'neon-lounge.jpg',
     'Ian and Sarah laughing together in a neon-lit lounge.',
     'Night Out',
   ),
-  createResponsivePhoto(
-    'stadium-selfie',
-    800,
+  createPhoto(
+    'stadium-selfie.jpg',
     'Ian and Sarah smiling together at a stadium.',
     'Game Day',
   ),
@@ -186,41 +188,29 @@ export default function App() {
           <div className="hero-content">
             <p className="eyebrow">Save the date</p>
             <h1>Saturday, October 31, 2026 • Kansas City, Missouri</h1>
-            <p className="hero-subtitle">We’re getting married</p>
+            <p className="hero-subtitle">Join us for our wedding celebration in downtown Kansas City.</p>
             <div className="hero-actions">
               <a className="button" href="#rsvp">RSVP</a>
-              <a className="button button-secondary" href="#details">View details</a>
+              <a className="button button-secondary" href="#hotel-blocks">Hotel blocks</a>
             </div>
           </div>
         </div>
       </header>
 
       <main>
-        <section className="section section-intro">
-          <SectionHeading kicker="Welcome" title="Hi Mom!" narrow>
-            <p>
-              Saturday, October 31, 2026 • Kansas City, Missouri
-            </p>
-            <p>
-              We made this site to keep everything in one place. You’ll find the weekend schedule,
-              venue details, hotel suggestions, and gift registry information below.
-            </p>
-          </SectionHeading>
-        </section>
-
         <section id="story" className="section two-column card-surface">
           <div>
             <p className="kicker">Our story</p>
             <h2>From here to forever.</h2>
             <p>
-              Ian Naeger and Sarah Bondurant are getting married, and this site is the home base for the celebration.
+              We’re so excited to celebrate our wedding with the people we love most.
             </p>
             <p>
-              We’re so excited to gather with the people we love most for a fall wedding weekend in Kansas City.
+              This site is the best place for weekend details, hotel information, and updates as the day gets closer.
             </p>
           </div>
           <div className="quote-card photo-callout">
-            <img src={withBase('photos/proposal-snow.jpg')} alt="Ian proposing to Sarah on a snowy overlook at dusk." />
+            <img src={withBase('photos/our-story.jpg')} alt="Ian and Sarah together in a favorite photo." />
           </div>
         </section>
 
@@ -238,20 +228,44 @@ export default function App() {
           </div>
         </section>
 
-        <section id="travel" className="section two-column muted-band split-panel">
-          <div>
-            <p className="kicker">Travel</p>
-            <h2>Stay, fly, and get around.</h2>
-            <ul className="detail-list">
-              <li><strong>City:</strong> Kansas City, Missouri</li>
-              <li><strong>Venue:</strong> Union</li>
-              <li><strong>Travel info:</strong> Hotel block and transportation details coming soon</li>
-            </ul>
-          </div>
-          <div>
+        <section id="hotel-blocks" className="section">
+          <SectionHeading kicker="Hotel blocks" title="Where to stay for the weekend.">
             <p>
-              You can replace this section with your actual hotel links, shuttle timing, welcome party plans,
-              child care notes, or accessibility information.
+              We’ve reserved room blocks at two downtown Kansas City hotels, both an easy walk from Union Wedding Venue.
+            </p>
+          </SectionHeading>
+
+          <div className="grid two-up hotel-grid">
+            {hotelBlocks.map((hotel) => (
+              <article className="hotel-card" key={hotel.name}>
+                <div className="hotel-card-header">
+                  <div>
+                    <h3>{hotel.name}</h3>
+                    <p className="hotel-rate">Rates from {hotel.rate}</p>
+                  </div>
+                </div>
+
+                <ul className="detail-list hotel-details">
+                  <li><strong>Walk to venue:</strong> {hotel.walkTime}</li>
+                  <li><strong>Available dates:</strong> {hotel.availableDates}</li>
+                  <li><strong>Book by:</strong> {hotel.bookBy}</li>
+                </ul>
+              </article>
+            ))}
+          </div>
+
+          <div className="hotel-actions">
+            <a className="button hotel-section-button" href={hotelBookingLink} target="_blank" rel="noreferrer">
+              Book a Hotel
+            </a>
+          </div>
+
+          <div className="travel-note">
+            <p>
+              Need to arrive early or stay a little longer? Reach out to our travel coordinator at{' '}
+              <a href={`mailto:${travelCoordinator.email}`}>{travelCoordinator.email}</a> or{' '}
+              <a href={`tel:${travelCoordinator.phone.replace(/\./g, '')}`}>{travelCoordinator.phone}</a> and mention the{' '}
+              <strong>{travelCoordinator.reference}</strong>.
             </p>
           </div>
         </section>
@@ -259,7 +273,7 @@ export default function App() {
         <section id="things-to-do" className="section things-section">
           <SectionHeading kicker="Things to do" title="Make a weekend of it in Kansas City.">
             <p>
-              We’ll add some of our favorite spots and local recommendations here so out-of-town guests can explore a little while they’re in town.
+              If you’re coming in from out of town, here are a few of our favorite nearby spots to check out while you’re in Kansas City.
             </p>
           </SectionHeading>
           <div className="things-card">
@@ -267,11 +281,13 @@ export default function App() {
               <li>
                 Visit some of our favorite restaurants
                 <ul>
-                  <li>Add restaurant names here</li>
+                  <li>Blue Sushi</li>
+                  <li>County Road Ice House</li>
+                  <li>Tiki Taco</li>
                 </ul>
               </li>
-              <li>Add another KC recommendation here</li>
-              <li>Add another KC activity or neighborhood here</li>
+              <li>Explore the Power & Light District</li>
+              <li>Walk through the Crossroads Arts District</li>
             </ul>
           </div>
         </section>
@@ -315,7 +331,7 @@ export default function App() {
 
         <section id="registry" className="section">
           <SectionHeading kicker="Registry" title="Your presence is the best gift." narrow>
-            <p>If you’d like to give something, we’re registered at a few places below.</p>
+            <p>If you’d like to celebrate with a gift, we’re registered at the places below.</p>
           </SectionHeading>
           <div className="grid two-up">
             {registryLinks.map((item) => (
@@ -331,7 +347,7 @@ export default function App() {
           <p className="kicker">RSVP</p>
           <h2>Let us know if you can make it.</h2>
           <p>
-            You can link this button to a Google Form, WithJoy, Zola, or a custom RSVP page later.
+            We can’t wait to celebrate with you. Please send your RSVP when you’re ready.
           </p>
           <a className="button" href="mailto:hello@example.com?subject=Wedding%20RSVP">
             Send RSVP
