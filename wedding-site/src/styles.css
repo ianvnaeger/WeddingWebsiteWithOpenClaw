@@ -187,10 +187,6 @@ a {
   padding: clamp(56px, 8vw, 96px) clamp(18px, 2vw, 24px) 0;
 }
 
-.section-intro {
-  padding-top: 56px;
-}
-
 .split-panel {
   margin-top: clamp(32px, 4vw, 48px);
 }
@@ -290,7 +286,9 @@ a {
 .info-card,
 .registry-card,
 .gallery-viewer,
-.things-card {
+.things-card,
+.hotel-card,
+.travel-note {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--surface-strong);
@@ -299,6 +297,62 @@ a {
 
 .things-card {
   padding: clamp(24px, 4vw, 32px);
+}
+
+.hotel-grid {
+  align-items: stretch;
+}
+
+.hotel-card {
+  padding: clamp(24px, 4vw, 32px);
+}
+
+.hotel-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.hotel-card h3 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.hotel-rate {
+  margin: 6px 0 0;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.hotel-button,
+.hotel-section-button {
+  flex-shrink: 0;
+}
+
+.hotel-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.hotel-section-button {
+  margin-top: 8px;
+}
+
+.hotel-details {
+  margin: 0;
+}
+
+.travel-note {
+  margin-top: 20px;
+  padding: 20px 24px;
+}
+
+.travel-note p {
+  margin: 0;
+  color: var(--muted);
 }
 
 .things-list {
@@ -431,6 +485,10 @@ a {
   .three-up,
   .two-up {
     grid-template-columns: 1fr;
+  }
+
+  .hotel-card-header {
+    flex-direction: column;
   }
 
   .gallery-thumbs {
