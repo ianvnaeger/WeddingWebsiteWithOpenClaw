@@ -454,7 +454,8 @@ export default function App() {
                 aria-describedby={rsvpError ? 'rsvp-password-error' : undefined}
                 required
                 autoFocus
-              {rsvpError ? <p className="modal-error">{rsvpError}</p> : null}
+              />
+              {rsvpError ? <p id="rsvp-password-error" className="modal-error">{rsvpError}</p> : null}
               <button type="submit" className="button modal-submit" disabled={isSubmittingRsvp}>
                 {isSubmittingRsvp ? 'Checking...' : 'Continue'}
               </button>
