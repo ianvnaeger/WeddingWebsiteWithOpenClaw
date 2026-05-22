@@ -423,7 +423,16 @@ export default function App() {
       </main>
 
       {isRsvpModalOpen ? (
-        <div className="modal-shell" role="dialog" aria-modal="true" aria-labelledby="rsvp-modal-title">
+        <div
+          className="modal-shell"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="rsvp-modal-title"
+          tabIndex={-1}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') closeRsvpModal()
+          }}
+        >
           <div className="modal-backdrop" onClick={closeRsvpModal} />
           <div className="modal-card card-surface">
             <button type="button" className="modal-close" onClick={closeRsvpModal} aria-label="Close RSVP password dialog">
