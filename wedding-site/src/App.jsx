@@ -450,8 +450,10 @@ export default function App() {
                 value={rsvpPassword}
                 onChange={(event) => setRsvpPassword(event.target.value)}
                 autoComplete="current-password"
+                aria-invalid={Boolean(rsvpError)}
+                aria-describedby={rsvpError ? 'rsvp-password-error' : undefined}
                 required
-              />
+                autoFocus
               {rsvpError ? <p className="modal-error">{rsvpError}</p> : null}
               <button type="submit" className="button modal-submit" disabled={isSubmittingRsvp}>
                 {isSubmittingRsvp ? 'Checking...' : 'Continue'}
