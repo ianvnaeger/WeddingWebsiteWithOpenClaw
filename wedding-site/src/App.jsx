@@ -170,6 +170,12 @@ export default function App() {
     setRsvpError('')
 
     try {
+      if (!rsvpRedirectUrl || !rsvpPasswordHash) {
+        setRsvpError('RSVP is not configured yet. Please check back soon.')
+        setIsSubmittingRsvp(false)
+        return
+      }
+
       const passwordHash = await sha256(rsvpPassword)
 
       if (passwordHash !== rsvpPasswordHash) {
