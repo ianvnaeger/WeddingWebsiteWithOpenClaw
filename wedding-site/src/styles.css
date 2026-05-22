@@ -45,6 +45,11 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
 .hero {
   min-height: 100svh;
   padding: 24px clamp(18px, 4vw, 40px) 56px;
@@ -80,6 +85,10 @@ a {
   font-size: clamp(1.5rem, 4vw, 1.9rem);
   font-weight: 700;
   color: white;
+}
+
+.brand-offset {
+  margin-left: 8px;
 }
 
 .nav-toggle {
@@ -175,6 +184,11 @@ a {
   box-shadow: 0 12px 28px rgba(47, 8, 4, 0.28);
 }
 
+.button:disabled {
+  cursor: wait;
+  opacity: 0.75;
+}
+
 .button-secondary {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.14);
@@ -185,6 +199,10 @@ a {
   width: min(var(--content-width), 100%);
   margin: 0 auto;
   padding: clamp(56px, 8vw, 96px) clamp(18px, 2vw, 24px) 0;
+}
+
+.section-story {
+  margin-top: 18px;
 }
 
 .split-panel {
@@ -305,6 +323,8 @@ a {
 
 .hotel-card {
   padding: clamp(24px, 4vw, 32px);
+  display: grid;
+  gap: 18px;
 }
 
 .hotel-card-header {
@@ -326,9 +346,18 @@ a {
   font-weight: 700;
 }
 
+.hotel-description {
+  margin: 0;
+  color: var(--muted);
+}
+
 .hotel-button,
 .hotel-section-button {
   flex-shrink: 0;
+}
+
+.hotel-button {
+  justify-self: start;
 }
 
 .hotel-actions {
@@ -339,6 +368,12 @@ a {
 
 .hotel-section-button {
   margin-top: 8px;
+}
+
+.hotel-section-button-large {
+  min-height: 56px;
+  padding: 16px 28px;
+  font-size: 1.02rem;
 }
 
 .hotel-details {
@@ -397,6 +432,7 @@ a {
   gap: 16px;
   align-items: center;
   padding: 18px;
+  border-top: 1px solid var(--line);
 }
 
 .gallery-button {
@@ -413,6 +449,8 @@ a {
 
 .gallery-meta {
   text-align: center;
+  display: grid;
+  place-items: center;
 }
 
 .gallery-caption {
@@ -427,8 +465,8 @@ a {
 
 .gallery-thumbs {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
   padding: 0 18px 18px;
 }
 
@@ -439,6 +477,7 @@ a {
   background: transparent;
   overflow: hidden;
   cursor: pointer;
+  aspect-ratio: 1 / 1;
 }
 
 .gallery-thumb.is-active {
@@ -447,7 +486,7 @@ a {
 
 .gallery-thumb img {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  height: 100%;
   object-fit: cover;
   display: block;
 }
@@ -472,6 +511,82 @@ a {
   margin-top: clamp(56px, 8vw, 96px);
 }
 
+.modal-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(12, 7, 5, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.modal-card {
+  position: relative;
+  width: min(100%, 480px);
+  padding: 28px;
+}
+
+.modal-card h2 {
+  margin-bottom: 12px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+}
+
+.modal-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.modal-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: rgba(255, 244, 229, 0.88);
+}
+
+.modal-input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+}
+
+.modal-input:focus {
+  outline: 2px solid rgba(132, 194, 159, 0.45);
+  outline-offset: 2px;
+}
+
+.modal-error {
+  margin: 0;
+  color: #ffb8a3;
+  font-size: 0.92rem;
+}
+
+.modal-submit {
+  width: 100%;
+  margin-top: 4px;
+}
+
 .footer {
   width: min(var(--content-width), 100%);
   margin: 0 auto;
@@ -492,7 +607,7 @@ a {
   }
 
   .gallery-thumbs {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .photo-callout img {
@@ -577,6 +692,6 @@ a {
   }
 
   .gallery-thumbs {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
