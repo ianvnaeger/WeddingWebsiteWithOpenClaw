@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 
+const rsvpRedirectUrl = 'https://www.google.com'
+const rsvpPasswordHash = '02fb0ac78add2fb4004c0a152b45b9b7655f69ef71ec415fcd0f3d5c36459393'
+
 const navLinks = [
   { label: 'Our Story', href: '#story' },
   { label: 'Details', href: '#details' },
@@ -32,15 +35,17 @@ const registryLinks = [
 const hotelBlocks = [
   {
     name: 'Hotel Phillips',
-    rate: '$189 + tax',
-    walkTime: 'About an 11 minute walk to the venue',
+    description:
+      'A classic downtown stay close to the venue, with easy access to Kansas City nightlife and weekend plans.',
+    rate: 'Starting at $189 + tax',
     availableDates: 'Friday, October 30 through Sunday, November 1',
     bookBy: 'Tuesday, September 29',
   },
   {
     name: 'Courtyard Kansas City Downtown',
-    rate: '$199 + tax',
-    walkTime: 'About a 9 minute walk to the venue',
+    description:
+      'A modern downtown option within walking distance of the venue, the T-Mobile Center, and the Power & Light District.',
+    rate: 'Starting at $199 + tax',
     availableDates: 'Thursday, October 29 through Sunday, November 1',
     bookBy: 'Wednesday, October 7',
   },
@@ -68,6 +73,12 @@ function createPhoto(fileName, alt, label) {
   }
 }
 
+async function sha256(value) {
+  const encoded = new TextEncoder().encode(value)
+  const digest = await window.crypto.subtle.digest('SHA-256', encoded)
+  return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join('')
+}
+
 const galleryPhotos = [
   createPhoto(
     'fuji-bell.jpg',
@@ -75,17 +86,12 @@ const galleryPhotos = [
     'Fuji Vista',
   ),
   createPhoto(
-    'proposal-snow.jpg',
-    'Ian proposing to Sarah on a snowy overlook at dusk.',
-    'Proposal',
-  ),
-  createPhoto(
     'tent-kiss.jpg',
     'Ian kissing Sarah on the cheek under string lights at an outdoor celebration.',
     'Celebration',
   ),
   createPhoto(
-    'yukata.jpg',
+    'kimonos.jpg',
     'Ian and Sarah standing together in yukata with a mountain view behind them.',
     'Japan',
   ),
@@ -98,6 +104,21 @@ const galleryPhotos = [
     'stadium-selfie.jpg',
     'Ian and Sarah smiling together at a stadium.',
     'Game Day',
+  ),
+  createPhoto(
+    'good-times.jpg',
+    'Ian and Sarah together during a fun outing.',
+    'Good Times',
+  ),
+  createPhoto(
+    'woodchipper.jpg',
+    'Ian and Sarah outdoors near a woodchipper.',
+    'Woodchipper',
+  ),
+  createPhoto(
+    'concert.jpg',
+    'Ian and Sarah together at a concert.',
+    'Concert',
   ),
 ]
 
@@ -114,6 +135,10 @@ function SectionHeading({ kicker, title, narrow = false, children }) {
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [galleryIndex, setGalleryIndex] = useState(0)
+  const [isRsvpModalOpen, setIsRsvpModalOpen] = useState(false)
+  const [rsvpPassword, setRsvpPassword] = useState('')
+  const [rsvpError, setRsvpError] = useState('')
+  const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false)
   const mobileNavMaxWidth = 640
 
   const currentPhoto = galleryPhotos[galleryIndex]
@@ -124,6 +149,40 @@ export default function App() {
 
   const showNextPhoto = () => {
     setGalleryIndex((index) => (index + 1) % galleryPhotos.length)
+  }
+
+  const openRsvpModal = () => {
+    setIsRsvpModalOpen(true)
+    setRsvpPassword('')
+    setRsvpError('')
+  }
+
+  const closeRsvpModal = () => {
+    setIsRsvpModalOpen(false)
+    setRsvpPassword('')
+    setRsvpError('')
+    setIsSubmittingRsvp(false)
+  }
+
+  const handleRsvpSubmit = async (event) => {
+    event.preventDefault()
+    setIsSubmittingRsvp(true)
+    setRsvpError('')
+
+    try {
+      const passwordHash = await sha256(rsvpPassword)
+
+      if (passwordHash !== rsvpPasswordHash) {
+        setRsvpError('Incorrect password.')
+        setIsSubmittingRsvp(false)
+        return
+      }
+
+      window.location.assign(rsvpRedirectUrl)
+    } catch {
+      setRsvpError('Unable to continue right now. Please try again.')
+      setIsSubmittingRsvp(false)
+    }
   }
 
   useEffect(() => {
@@ -144,23 +203,23 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    document.body.style.overflow = menuOpen || isRsvpModalOpen ? 'hidden' : ''
     return () => {
       document.body.style.overflow = ''
     }
-  }, [menuOpen])
+  }, [isRsvpModalOpen, menuOpen])
 
   return (
     <>
       <header
         className="hero"
         style={{
-          backgroundImage: `linear-gradient(rgba(20, 12, 10, 0.36), rgba(20, 12, 10, 0.64)), url(${withBase('photos/fuji-bell.jpg')})`,
+          backgroundImage: `linear-gradient(rgba(20, 12, 10, 0.36), rgba(20, 12, 10, 0.64)), url(${withBase('photos/black-and-white.jpg')})`,
         }}
       >
         <div className="hero-shell">
           <nav className="nav">
-            <div className="brand">Ian & Sarah</div>
+            <div className="brand brand-offset">Ian & Sarah</div>
 
             <button
               type="button"
@@ -190,7 +249,7 @@ export default function App() {
             <h1>Saturday, October 31, 2026 • Kansas City, Missouri</h1>
             <p className="hero-subtitle">Join us for our wedding celebration in downtown Kansas City.</p>
             <div className="hero-actions">
-              <a className="button" href="#rsvp">RSVP</a>
+              <button type="button" className="button" onClick={openRsvpModal}>RSVP</button>
               <a className="button button-secondary" href="#hotel-blocks">Hotel blocks</a>
             </div>
           </div>
@@ -198,7 +257,7 @@ export default function App() {
       </header>
 
       <main>
-        <section id="story" className="section two-column card-surface">
+        <section id="story" className="section section-story two-column card-surface">
           <div>
             <p className="kicker">Our story</p>
             <h2>From here to forever.</h2>
@@ -233,6 +292,9 @@ export default function App() {
             <p>
               We’ve reserved room blocks at two downtown Kansas City hotels, both an easy walk from Union Wedding Venue.
             </p>
+            <p>
+              Both options are available through the same booking link. Choose the hotel that works best for your stay.
+            </p>
           </SectionHeading>
 
           <div className="grid two-up hotel-grid">
@@ -241,22 +303,24 @@ export default function App() {
                 <div className="hotel-card-header">
                   <div>
                     <h3>{hotel.name}</h3>
-                    <p className="hotel-rate">Rates from {hotel.rate}</p>
+                    <p className="hotel-rate">{hotel.rate}</p>
                   </div>
                 </div>
 
+                <p className="hotel-description">{hotel.description}</p>
+
                 <ul className="detail-list hotel-details">
-                  <li><strong>Walk to venue:</strong> {hotel.walkTime}</li>
-                  <li><strong>Available dates:</strong> {hotel.availableDates}</li>
-                  <li><strong>Book by:</strong> {hotel.bookBy}</li>
+                  <li><strong>Stay window:</strong> {hotel.availableDates}</li>
+                  <li><strong>Reserve by:</strong> {hotel.bookBy}</li>
                 </ul>
+
               </article>
             ))}
           </div>
 
           <div className="hotel-actions">
-            <a className="button hotel-section-button" href={hotelBookingLink} target="_blank" rel="noreferrer">
-              Book a Hotel
+            <a className="button hotel-section-button hotel-section-button-large" href={hotelBookingLink} target="_blank" rel="noreferrer">
+              Book a hotel
             </a>
           </div>
 
@@ -304,7 +368,6 @@ export default function App() {
                 Previous
               </button>
               <div className="gallery-meta">
-                <div className="gallery-caption">{currentPhoto.label}</div>
                 <div className="gallery-count">{galleryIndex + 1} / {galleryPhotos.length}</div>
               </div>
               <button type="button" className="gallery-button" onClick={showNextPhoto}>
@@ -329,6 +392,15 @@ export default function App() {
           </div>
         </section>
 
+        <section id="rsvp" className="section card-surface center-panel rsvp-panel">
+          <p className="kicker">RSVP</p>
+          <h2>Let us know if you can make it.</h2>
+          <p>
+            We can’t wait to celebrate with you. Please send your RSVP when you’re ready.
+          </p>
+          <button type="button" className="button" onClick={openRsvpModal}>Open RSVP</button>
+        </section>
+
         <section id="registry" className="section">
           <SectionHeading kicker="Registry" title="Your presence is the best gift." narrow>
             <p>If you’d like to celebrate with a gift, we’re registered at the places below.</p>
@@ -342,21 +414,40 @@ export default function App() {
             ))}
           </div>
         </section>
-
-        <section id="rsvp" className="section card-surface center-panel rsvp-panel">
-          <p className="kicker">RSVP</p>
-          <h2>Let us know if you can make it.</h2>
-          <p>
-            We can’t wait to celebrate with you. Please send your RSVP when you’re ready.
-          </p>
-          <a className="button" href="mailto:hello@example.com?subject=Wedding%20RSVP">
-            Send RSVP
-          </a>
-        </section>
       </main>
 
+      {isRsvpModalOpen ? (
+        <div className="modal-shell" role="dialog" aria-modal="true" aria-labelledby="rsvp-modal-title">
+          <div className="modal-backdrop" onClick={closeRsvpModal} />
+          <div className="modal-card card-surface">
+            <button type="button" className="modal-close" onClick={closeRsvpModal} aria-label="Close RSVP password dialog">
+              ×
+            </button>
+            <p className="kicker">RSVP access</p>
+            <h2 id="rsvp-modal-title">Enter the RSVP password.</h2>
+            <p>Enter the password from your invitation to continue to the RSVP form.</p>
+            <form className="modal-form" onSubmit={handleRsvpSubmit}>
+              <label className="modal-label" htmlFor="rsvp-password">Password</label>
+              <input
+                id="rsvp-password"
+                className="modal-input"
+                type="password"
+                value={rsvpPassword}
+                onChange={(event) => setRsvpPassword(event.target.value)}
+                autoComplete="current-password"
+                required
+              />
+              {rsvpError ? <p className="modal-error">{rsvpError}</p> : null}
+              <button type="submit" className="button modal-submit" disabled={isSubmittingRsvp}>
+                {isSubmittingRsvp ? 'Checking...' : 'Continue'}
+              </button>
+            </form>
+          </div>
+        </div>
+      ) : null}
+
       <footer className="footer">
-        <p>Made with love for a very good party.</p>
+        <p>Developed by Ian Naeger and a Robot</p>
       </footer>
     </>
   )
