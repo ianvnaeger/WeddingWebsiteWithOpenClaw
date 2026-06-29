@@ -105,7 +105,7 @@ export async function lookupHouseholdByName(guestName) {
     throw new Error('We could not find that guest. In demo mode, try "Jeff Smith", "Casey Smith", or "Avery Taylor".')
   }
 
-  const data = await postJson('/lookup', { guestName })
+  const data = await postJson('/rsvp-lookup', { guestName })
 
   return {
     household: data.household ?? null,
@@ -123,5 +123,5 @@ export async function submitRsvp(payload) {
     }
   }
 
-  return postJson('/submit', payload)
+  return postJson('/rsvp-submit', payload)
 }
