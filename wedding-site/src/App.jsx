@@ -1,35 +1,41 @@
 import { useEffect, useState } from 'react'
 
-const rsvpRedirectUrl = 'https://www.google.com'
-const rsvpPasswordHash = '02fb0ac78add2fb4004c0a152b45b9b7655f69ef71ec415fcd0f3d5c36459393'
+import { isMockRsvpMode, lookupHouseholdByName, submitRsvp } from './lib/rsvp'
 
 const navLinks = [
-  { label: 'Our Story', href: '#story' },
   { label: 'Details', href: '#details' },
+  { label: 'RSVP', href: '#rsvp' },
   { label: 'Hotel Blocks', href: '#hotel-blocks' },
   { label: 'Things to Do', href: '#things-to-do' },
   { label: 'Registry', href: '#registry' },
-  { label: 'RSVP', href: '#rsvp' },
 ]
 
 const detailCards = [
   {
     title: 'Ceremony',
-    lines: ['Saturday, October 31, 2026', '5:00 PM', 'Union Wedding Venue', '1721 Baltimore Ave, Kansas City, MO 64108'],
+    lines: ['Saturday, October 31, 2026', '5:00 PM', 'Union Wedding Venue • 1721 Baltimore Ave, Kansas City, MO 64108'],
   },
   {
     title: 'Reception',
-    lines: ['Immediately following the ceremony', 'Union Wedding Venue', 'Dinner, dancing, dessert, and happy tears'],
+    lines: [
+      'Immediately following the ceremony',
+      'Dinner, dancing, dessert, and an open bar',
+      'Union Wedding Venue • 1721 Baltimore Ave, Kansas City, MO 64108',
+    ],
   },
   {
     title: 'Dress code',
-    lines: ['Garden formal', 'Think cocktail attire, suits, dresses, and shoes comfortable enough for dancing.'],
+    lines: [
+      'Cocktail attire',
+      'We invite guests to wear polished cocktail attire, such as suits, jackets, dresses, or other elevated eveningwear.',
+      'We also ask guests to refrain from wearing overt Halloween costumes during the ceremony itself.',
+    ],
   },
 ]
 
 const registryLinks = [
-  { label: 'Registry One', href: '#' },
-  { label: 'Registry Two', href: '#' },
+  { label: 'Amazon Registry', href: 'https://www.amazon.com/wedding/guest-view/1VVV5G4VUWTIF' },
+  { label: 'Contribute to our Honeymoon Fund', href: 'https://www.zola.com/registry/ianandsarahoctober31' },
 ]
 
 const hotelBlocks = [
@@ -73,13 +79,12 @@ function createPhoto(fileName, alt, label) {
   }
 }
 
-async function sha256(value) {
-  const encoded = new TextEncoder().encode(value)
-  const digest = await window.crypto.subtle.digest('SHA-256', encoded)
-  return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join('')
-}
-
 const galleryPhotos = [
+  createPhoto(
+    'our-story.jpg',
+    'Ian and Sarah together in a favorite photo.',
+    'Favorite Photo',
+  ),
   createPhoto(
     'fuji-bell.jpg',
     'Ian and Sarah standing together beneath a heart-shaped bell with Mount Fuji in the background.',
@@ -132,16 +137,43 @@ function SectionHeading({ kicker, title, narrow = false, children }) {
   )
 }
 
+function createInitialGuestResponses(guests) {
+  return Object.fromEntries(
+    guests.map((guest) => [
+      guest.id,
+      {
+        attendance: '',
+        dietaryRestrictions: '',
+      },
+    ]),
+  )
+}
+
+function isLookupCandidate(candidate) {
+  return candidate?.household?.householdId
+}
+
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [isRsvpModalOpen, setIsRsvpModalOpen] = useState(false)
-  const [rsvpPassword, setRsvpPassword] = useState('')
+  const [guestNameInput, setGuestNameInput] = useState('')
+  const [lookupError, setLookupError] = useState('')
+  const [isLookingUpHousehold, setIsLookingUpHousehold] = useState(false)
+  const [household, setHousehold] = useState(null)
+  const [lookupCandidates, setLookupCandidates] = useState([])
+  const [guestResponses, setGuestResponses] = useState({})
   const [rsvpError, setRsvpError] = useState('')
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false)
+  const [rsvpSuccess, setRsvpSuccess] = useState(null)
   const mobileNavMaxWidth = 640
 
   const currentPhoto = galleryPhotos[galleryIndex]
+  const householdGuests = household?.guests ?? []
+  const attendingGuests = householdGuests.filter((guest) => guestResponses[guest.id]?.attendance === 'yes')
+  const allGuestsAnswered =
+    householdGuests.length > 0 &&
+    householdGuests.every((guest) => ['yes', 'no'].includes(guestResponses[guest.id]?.attendance))
 
   const showPrevPhoto = () => {
     setGalleryIndex((index) => (index - 1 + galleryPhotos.length) % galleryPhotos.length)
@@ -151,42 +183,116 @@ export default function App() {
     setGalleryIndex((index) => (index + 1) % galleryPhotos.length)
   }
 
-  const openRsvpModal = () => {
-    setIsRsvpModalOpen(true)
-    setRsvpPassword('')
+  const resetRsvpFlow = () => {
+    setGuestNameInput('')
+    setLookupError('')
+    setIsLookingUpHousehold(false)
+    setHousehold(null)
+    setLookupCandidates([])
+    setGuestResponses({})
     setRsvpError('')
+    setIsSubmittingRsvp(false)
+    setRsvpSuccess(null)
+  }
+
+  const openRsvpModal = () => {
+    resetRsvpFlow()
+    setIsRsvpModalOpen(true)
   }
 
   const closeRsvpModal = () => {
     setIsRsvpModalOpen(false)
-    setRsvpPassword('')
+    resetRsvpFlow()
+  }
+
+  const handleLookupSubmit = async (event) => {
+    event.preventDefault()
+    setLookupError('')
     setRsvpError('')
-    setIsSubmittingRsvp(false)
+    setRsvpSuccess(null)
+    setIsLookingUpHousehold(true)
+
+    try {
+      const lookupResult = await lookupHouseholdByName(guestNameInput)
+      const nextCandidates = Array.isArray(lookupResult.candidates)
+        ? lookupResult.candidates.filter(isLookupCandidate)
+        : []
+
+      setLookupCandidates(nextCandidates)
+
+      if (lookupResult.household) {
+        setHousehold(lookupResult.household)
+        setGuestResponses(createInitialGuestResponses(lookupResult.household.guests))
+      } else {
+        setHousehold(null)
+        setGuestResponses({})
+      }
+    } catch (error) {
+      setHousehold(null)
+      setLookupCandidates([])
+      setGuestResponses({})
+      setLookupError(error instanceof Error ? error.message : 'Unable to find that guest right now.')
+    } finally {
+      setIsLookingUpHousehold(false)
+    }
+  }
+
+  const selectLookupCandidate = (candidate) => {
+    setLookupError('')
+    setLookupCandidates([])
+    setHousehold(candidate.household)
+    setGuestResponses(createInitialGuestResponses(candidate.household.guests))
+  }
+
+  const updateGuestAttendance = (guestId, attendance) => {
+    setGuestResponses((current) => ({
+      ...current,
+      [guestId]: {
+        ...current[guestId],
+        attendance,
+        dietaryRestrictions: attendance === 'yes' ? current[guestId]?.dietaryRestrictions ?? '' : '',
+      },
+    }))
+  }
+
+  const updateDietaryRestrictions = (guestId, dietaryRestrictions) => {
+    setGuestResponses((current) => ({
+      ...current,
+      [guestId]: {
+        ...current[guestId],
+        dietaryRestrictions,
+      },
+    }))
   }
 
   const handleRsvpSubmit = async (event) => {
     event.preventDefault()
-    setIsSubmittingRsvp(true)
     setRsvpError('')
 
+    if (!household || !allGuestsAnswered) {
+      setRsvpError('Please respond for each invited guest before submitting.')
+      return
+    }
+
+    setIsSubmittingRsvp(true)
+
     try {
-      if (!rsvpRedirectUrl || !rsvpPasswordHash) {
-        setRsvpError('RSVP is not configured yet. Please check back soon.')
-        setIsSubmittingRsvp(false)
-        return
-      }
+      const response = await submitRsvp({
+        householdId: household.householdId,
+        householdName: household.householdName,
+        guests: householdGuests.map((guest) => ({
+          guestId: guest.id,
+          guestName: guest.name,
+          attending: guestResponses[guest.id]?.attendance === 'yes',
+          dietaryRestrictions: guestResponses[guest.id]?.dietaryRestrictions?.trim() ?? '',
+        })),
+      })
 
-      const passwordHash = await sha256(rsvpPassword)
-
-      if (passwordHash !== rsvpPasswordHash) {
-        setRsvpError('Incorrect password.')
-        setIsSubmittingRsvp(false)
-        return
-      }
-
-      window.location.assign(rsvpRedirectUrl)
-    } catch {
-      setRsvpError('Unable to continue right now. Please try again.')
+      setRsvpSuccess(response)
+      setRsvpError('')
+    } catch (error) {
+      setRsvpError(error instanceof Error ? error.message : 'Unable to submit your RSVP right now.')
+    } finally {
       setIsSubmittingRsvp(false)
     }
   }
@@ -263,34 +369,27 @@ export default function App() {
       </header>
 
       <main>
-        <section id="story" className="section section-story two-column card-surface">
-          <div>
-            <p className="kicker">Our story</p>
-            <h2>From here to forever.</h2>
-            <p>
-              We’re so excited to celebrate our wedding with the people we love most.
-            </p>
-            <p>
-              This site is the best place for weekend details, hotel information, and updates as the day gets closer.
-            </p>
-          </div>
-          <div className="quote-card photo-callout">
-            <img src={withBase('photos/our-story.jpg')} alt="Ian and Sarah together in a favorite photo." />
-          </div>
-        </section>
-
         <section id="details" className="section">
           <SectionHeading kicker="Wedding details" title="The weekend at a glance." />
           <div className="grid three-up">
             {detailCards.map((card) => (
               <article className="info-card" key={card.title}>
                 <h3>{card.title}</h3>
-                {card.lines.map((line) => (
-                  <p key={line}>{line}</p>
+                {card.lines.map((line, index) => (
+                  <p key={line} className={index === 0 ? 'info-card-lead' : ''}>{line}</p>
                 ))}
               </article>
             ))}
           </div>
+        </section>
+
+        <section id="rsvp" className="section card-surface center-panel rsvp-panel">
+          <p className="kicker">RSVP</p>
+          <h2>Let us know if you can make it.</h2>
+          <p>
+            Find your invitation by guest name, respond for each invited guest, and share dietary restrictions for anyone attending.
+          </p>
+          <button type="button" className="button" onClick={openRsvpModal}>Start RSVP</button>
         </section>
 
         <section id="hotel-blocks" className="section">
@@ -319,7 +418,6 @@ export default function App() {
                   <li><strong>Stay window:</strong> {hotel.availableDates}</li>
                   <li><strong>Reserve by:</strong> {hotel.bookBy}</li>
                 </ul>
-
               </article>
             ))}
           </div>
@@ -348,16 +446,21 @@ export default function App() {
           </SectionHeading>
           <div className="things-card">
             <ul className="things-list">
+              <li>Start your morning at the River Market for a charming weekend farmers market</li>
+              <li>Go brewery hopping around the Crossroads district</li>
+              <li>Visit the National WWI Museum and Memorial for one of the city’s most iconic views</li>
               <li>
-                Visit some of our favorite restaurants
-                <ul>
+                Grab a bite at a few of our favorite Kansas City spots
+                <ul className="things-food-list">
                   <li>Blue Sushi</li>
+                  <li>Q39 BBQ</li>
                   <li>County Road Ice House</li>
+                  <li>Cosmo Burger</li>
                   <li>Tiki Taco</li>
+                  <li>Winstead’s</li>
+                  <li>Betty Rae’s</li>
                 </ul>
               </li>
-              <li>Explore the Power & Light District</li>
-              <li>Walk through the Crossroads Arts District</li>
             </ul>
           </div>
         </section>
@@ -398,18 +501,9 @@ export default function App() {
           </div>
         </section>
 
-        <section id="rsvp" className="section card-surface center-panel rsvp-panel">
-          <p className="kicker">RSVP</p>
-          <h2>Let us know if you can make it.</h2>
-          <p>
-            We can’t wait to celebrate with you. Please send your RSVP when you’re ready.
-          </p>
-          <button type="button" className="button" onClick={openRsvpModal}>Open RSVP</button>
-        </section>
-
         <section id="registry" className="section">
           <SectionHeading kicker="Registry" title="Your presence is the best gift." narrow>
-            <p>If you’d like to celebrate with a gift, we’re registered at the places below.</p>
+            <p>Gifts are unnecessary. However, if you would like to celebrate with something beyond your presence, please see below.</p>
           </SectionHeading>
           <div className="grid two-up">
             {registryLinks.map((item) => (
@@ -434,32 +528,160 @@ export default function App() {
           }}
         >
           <div className="modal-backdrop" onClick={closeRsvpModal} />
-          <div className="modal-card card-surface">
-            <button type="button" className="modal-close" onClick={closeRsvpModal} aria-label="Close RSVP password dialog">
+          <div className="modal-card card-surface rsvp-modal-card">
+            <button type="button" className="modal-close" onClick={closeRsvpModal} aria-label="Close RSVP dialog">
               ×
             </button>
-            <p className="kicker">RSVP access</p>
-            <h2 id="rsvp-modal-title">Enter the RSVP password.</h2>
-            <p>Enter the password from your invitation to continue to the RSVP form.</p>
-            <form className="modal-form" onSubmit={handleRsvpSubmit}>
-              <label className="modal-label" htmlFor="rsvp-password">Password</label>
-              <input
-                id="rsvp-password"
-                className="modal-input"
-                type="password"
-                value={rsvpPassword}
-                onChange={(event) => setRsvpPassword(event.target.value)}
-                autoComplete="current-password"
-                aria-invalid={Boolean(rsvpError)}
-                aria-describedby={rsvpError ? 'rsvp-password-error' : undefined}
-                required
-                autoFocus
-              />
-              {rsvpError ? <p id="rsvp-password-error" className="modal-error">{rsvpError}</p> : null}
-              <button type="submit" className="button modal-submit" disabled={isSubmittingRsvp}>
-                {isSubmittingRsvp ? 'Checking...' : 'Continue'}
-              </button>
-            </form>
+            <p className="kicker">RSVP</p>
+            <h2 id="rsvp-modal-title">Find your invitation and respond for your invited guests.</h2>
+            <p>
+              Enter one guest name from your invitation. Once we find that guest, we’ll show everyone in the same household so you can mark who will attend
+              and add dietary restrictions for anyone joining us.
+            </p>
+
+            {isMockRsvpMode ? (
+              <p className="modal-note">
+                Demo mode is active right now. Once the real RSVP backend is connected, this will use the live guest list.
+              </p>
+            ) : null}
+
+            {!rsvpSuccess ? (
+              <>
+                <form className="modal-form" onSubmit={handleLookupSubmit}>
+                  <label className="modal-label" htmlFor="household-name">Guest name</label>
+                  <input
+                    id="household-name"
+                    className="modal-input"
+                    type="text"
+                    value={guestNameInput}
+                    onChange={(event) => setGuestNameInput(event.target.value)}
+                    autoComplete="name"
+                    placeholder="Ex: Jeff Smith"
+                    required
+                    autoFocus
+                  />
+                  {lookupError ? <p className="modal-error">{lookupError}</p> : null}
+                  <div className="modal-actions">
+                    <button type="submit" className="button" disabled={isLookingUpHousehold}>
+                      {isLookingUpHousehold ? 'Looking up...' : household ? 'Find again' : 'Find invitation'}
+                    </button>
+                    {household ? (
+                      <button type="button" className="button button-secondary" onClick={resetRsvpFlow}>
+                        Start over
+                      </button>
+                    ) : null}
+                  </div>
+                </form>
+
+                {lookupCandidates.length > 0 ? (
+                  <div className="rsvp-candidate-list" aria-live="polite">
+                    <div className="rsvp-summary">
+                      <p>We found a few close matches. Pick the invitation you want to fill out.</p>
+                    </div>
+
+                    {lookupCandidates.map((candidate) => (
+                      <button
+                        type="button"
+                        key={`${candidate.household.householdId}:${candidate.matchedGuestName}`}
+                        className="rsvp-candidate-card"
+                        onClick={() => selectLookupCandidate(candidate)}
+                      >
+                        <span className="rsvp-candidate-name">{candidate.matchedGuestName}</span>
+                        <span className="rsvp-candidate-meta">
+                          {candidate.household.householdName} • {candidate.household.guests.length} invited guest
+                          {candidate.household.guests.length === 1 ? '' : 's'}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+
+                {household ? (
+                  <form className="rsvp-form" onSubmit={handleRsvpSubmit}>
+                    <div className="rsvp-household-card">
+                      <h3>{household.householdName}</h3>
+                      <p>{household.guests.length} invited guest{household.guests.length === 1 ? '' : 's'} found.</p>
+                    </div>
+
+                    <div className="rsvp-guest-list">
+                      {household.guests.map((guest) => {
+                        const response = guestResponses[guest.id] ?? { attendance: '', dietaryRestrictions: '' }
+
+                        return (
+                          <article className="rsvp-guest-card" key={guest.id}>
+                            <div className="rsvp-guest-header">
+                              <h3>{guest.name}</h3>
+                              <div className="rsvp-choice-group" role="group" aria-label={`Attendance for ${guest.name}`}>
+                                <button
+                                  type="button"
+                                  className={`rsvp-choice ${response.attendance === 'yes' ? 'is-active' : ''}`}
+                                  onClick={() => updateGuestAttendance(guest.id, 'yes')}
+                                >
+                                  Attending
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`rsvp-choice ${response.attendance === 'no' ? 'is-active' : ''}`}
+                                  onClick={() => updateGuestAttendance(guest.id, 'no')}
+                                >
+                                  Declines
+                                </button>
+                              </div>
+                            </div>
+
+                            {response.attendance === 'yes' ? (
+                              <div className="rsvp-dietary-block">
+                                <label className="modal-label" htmlFor={`dietary-${guest.id}`}>
+                                  Dietary restrictions
+                                </label>
+                                <textarea
+                                  id={`dietary-${guest.id}`}
+                                  className="modal-input modal-textarea"
+                                  value={response.dietaryRestrictions}
+                                  onChange={(event) => updateDietaryRestrictions(guest.id, event.target.value)}
+                                  placeholder="Leave blank if none"
+                                  rows={3}
+                                />
+                              </div>
+                            ) : null}
+                          </article>
+                        )
+                      })}
+                    </div>
+
+                    <div className="rsvp-summary">
+                      <p>
+                        {attendingGuests.length > 0
+                          ? `${attendingGuests.length} guest${attendingGuests.length === 1 ? '' : 's'} attending.`
+                          : 'No attending guests selected yet.'}
+                      </p>
+                      <p>Please respond for each invited guest before submitting.</p>
+                    </div>
+
+                    {rsvpError ? <p className="modal-error">{rsvpError}</p> : null}
+
+                    <button type="submit" className="button modal-submit" disabled={isSubmittingRsvp || !allGuestsAnswered}>
+                      {isSubmittingRsvp ? 'Submitting...' : 'Submit RSVP'}
+                    </button>
+                  </form>
+                ) : null}
+              </>
+            ) : (
+              <div className="rsvp-success">
+                <h3>Thank you. Your RSVP has been recorded.</h3>
+                <p>
+                  Confirmation code: <strong>{rsvpSuccess.confirmationCode}</strong>
+                </p>
+                <p>
+                  {rsvpSuccess.attendingCount > 0
+                    ? `We’re excited to celebrate with ${rsvpSuccess.attendingCount} attending guest${rsvpSuccess.attendingCount === 1 ? '' : 's'}.`
+                    : 'We’re sorry you can’t make it, but we appreciate the update.'}
+                </p>
+                <div className="modal-actions">
+                  <button type="button" className="button" onClick={closeRsvpModal}>Close</button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       ) : null}

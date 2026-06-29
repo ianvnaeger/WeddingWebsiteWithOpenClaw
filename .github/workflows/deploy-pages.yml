@@ -36,6 +36,9 @@ jobs:
         run: npm ci
 
       - name: Build site
+        env:
+          VITE_RSVP_API_BASE_URL: https://ygquejhvyknpltkymhei.functions.supabase.co
+          VITE_RSVP_USE_MOCK: false
         run: npm run build
 
       - name: Upload Pages artifact

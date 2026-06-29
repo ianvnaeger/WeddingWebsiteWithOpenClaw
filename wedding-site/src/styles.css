@@ -276,17 +276,32 @@ button {
 }
 
 .info-card {
-  padding: 24px;
+  padding: 30px 26px;
+  background: linear-gradient(180deg, rgba(36, 23, 20, 0.98) 0%, rgba(28, 18, 15, 0.98) 100%);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16);
 }
 
 .info-card h3 {
-  margin: 0 0 10px;
+  margin: 0 0 22px;
   font-size: 1.9rem;
+  line-height: 1;
 }
 
 .info-card p {
-  margin: 0 0 8px;
+  margin: 0;
+  padding: 0;
   color: var(--muted);
+  line-height: 1.55;
+}
+
+.info-card p + p {
+  margin-top: 14px;
+}
+
+.info-card-lead {
+  color: var(--text);
+  font-weight: 700;
+  font-size: 1.03rem;
 }
 
 .muted-band {
@@ -405,6 +420,19 @@ button {
   padding-left: 1.25rem;
 }
 
+.things-food-list {
+  margin-top: 8px;
+  padding-left: 1.25rem;
+  color: var(--muted);
+  columns: 2;
+  column-gap: 32px;
+}
+
+.things-food-list li {
+  break-inside: avoid;
+  margin-bottom: 10px;
+}
+
 .detail-list {
   padding-left: 18px;
   color: var(--muted);
@@ -465,7 +493,7 @@ button {
 
 .gallery-thumbs {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   padding: 0 18px 18px;
 }
@@ -533,6 +561,12 @@ button {
   padding: 28px;
 }
 
+.rsvp-modal-card {
+  width: min(100%, 760px);
+  max-height: min(88vh, 980px);
+  overflow: auto;
+}
+
 .modal-card h2 {
   margin-bottom: 12px;
 }
@@ -553,6 +587,13 @@ button {
   display: grid;
   gap: 12px;
   margin-top: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
 }
 
 .modal-label {
@@ -582,9 +623,134 @@ button {
   font-size: 0.92rem;
 }
 
+.modal-note {
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(132, 194, 159, 0.2);
+  border-radius: 16px;
+  background: rgba(132, 194, 159, 0.08);
+  color: rgba(239, 251, 245, 0.92);
+}
+
 .modal-submit {
   width: 100%;
   margin-top: 4px;
+}
+
+.modal-textarea {
+  min-height: 96px;
+  padding: 14px 16px;
+  resize: vertical;
+}
+
+.rsvp-form {
+  margin-top: 24px;
+  display: grid;
+  gap: 18px;
+}
+
+.rsvp-candidate-list {
+  margin-top: 24px;
+  display: grid;
+  gap: 14px;
+}
+
+.rsvp-candidate-card {
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  display: grid;
+  gap: 6px;
+}
+
+.rsvp-candidate-card:hover,
+.rsvp-candidate-card:focus-visible {
+  border-color: rgba(132, 194, 159, 0.45);
+  background: rgba(132, 194, 159, 0.08);
+}
+
+.rsvp-candidate-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.rsvp-candidate-meta {
+  color: var(--muted);
+}
+
+.rsvp-household-card,
+.rsvp-guest-card,
+.rsvp-summary,
+.rsvp-success {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.rsvp-household-card,
+.rsvp-summary,
+.rsvp-success {
+  padding: 18px 20px;
+}
+
+.rsvp-household-card h3,
+.rsvp-guest-card h3,
+.rsvp-success h3 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.rsvp-household-card p,
+.rsvp-summary p,
+.rsvp-success p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.rsvp-guest-list {
+  display: grid;
+  gap: 16px;
+}
+
+.rsvp-guest-card {
+  padding: 18px 20px;
+}
+
+.rsvp-guest-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rsvp-choice-group {
+  display: inline-flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rsvp-choice {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+}
+
+.rsvp-choice.is-active {
+  background: rgba(117, 50, 22, 0.9);
+  border-color: rgba(117, 50, 22, 1);
+}
+
+.rsvp-dietary-block {
+  margin-top: 18px;
+  display: grid;
+  gap: 8px;
 }
 
 .footer {
@@ -607,7 +773,15 @@ button {
   }
 
   .gallery-thumbs {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .things-food-list {
+    columns: 1;
+  }
+
+  .rsvp-guest-header {
+    flex-direction: column;
   }
 
   .photo-callout img {
@@ -688,6 +862,20 @@ button {
 
   .button,
   .gallery-button {
+    width: 100%;
+  }
+
+  .modal-actions {
+    display: grid;
+  }
+
+  .rsvp-choice-group {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rsvp-choice {
     width: 100%;
   }
 
