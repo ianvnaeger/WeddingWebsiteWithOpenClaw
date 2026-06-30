@@ -60,9 +60,12 @@ button {
 .hero-shell {
   width: min(var(--content-width), 100%);
   margin: 0 auto;
+  position: relative;
 }
 
 .nav {
+  position: relative;
+  z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -806,6 +809,7 @@ button {
     top: calc(100% + 12px);
     right: 18px;
     left: 18px;
+    z-index: 3;
     display: grid;
     gap: 8px;
     padding: 14px;
@@ -834,6 +838,7 @@ button {
   .nav-backdrop {
     position: absolute;
     inset: 0;
+    z-index: 1;
     display: block;
     background: rgba(20, 12, 10, 0.18);
     opacity: 0;
