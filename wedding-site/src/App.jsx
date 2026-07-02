@@ -296,7 +296,7 @@ export default function App() {
       return
     }
 
-    const hasBlankGuestNames = householdGuests.some((guest) => !guestResponses[guest.id]?.guestName?.trim())
+    const hasBlankGuestNames = householdGuests.some((guest) => !(guestResponses[guest.id]?.guestName ?? guest.name).trim())
 
     if (hasBlankGuestNames) {
       setRsvpError('Please provide a name for each invited guest before submitting.')
