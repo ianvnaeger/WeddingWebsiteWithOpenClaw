@@ -143,6 +143,7 @@ function createInitialGuestResponses(guests) {
       guest.id,
       {
         guestName: guest.name,
+        isEditingName: false,
         attendance: '',
         dietaryRestrictions: '',
       },
@@ -262,6 +263,16 @@ export default function App() {
       [guestId]: {
         ...current[guestId],
         guestName,
+      },
+    }))
+  }
+
+  const setGuestNameEditing = (guestId, isEditingName) => {
+    setGuestResponses((current) => ({
+      ...current,
+      [guestId]: {
+        ...current[guestId],
+        isEditingName,
       },
     }))
   }
@@ -623,26 +634,53 @@ export default function App() {
 
                     <div className="rsvp-guest-list">
                       {household.guests.map((guest) => {
-                        const response = guestResponses[guest.id] ?? { guestName: guest.name, attendance: '', dietaryRestrictions: '' }
+                        const response = guestResponses[guest.id] ?? {
+                          guestName: guest.name,
+                          isEditingName: false,
+                          attendance: '',
+                          dietaryRestrictions: '',
+                        }
+                        const displayedGuestName = response.guestName?.trim() || guest.name
 
                         return (
                           <article className="rsvp-guest-card" key={guest.id}>
                             <div className="rsvp-guest-header">
-                              <div className="rsvp-dietary-block">
-                                <label className="modal-label" htmlFor={`guest-name-${guest.id}`}>
-                                  Guest name
-                                </label>
-                                <input
-                                  id={`guest-name-${guest.id}`}
-                                  className="modal-input"
-                                  type="text"
-                                  value={response.guestName}
-                                  onChange={(event) => updateGuestName(guest.id, event.target.value)}
-                                  autoComplete="name"
-                                  required
-                                />
+                              <div className="rsvp-guest-name-block">
+                                <p className="rsvp-guest-label">Guest name</p>
+                                <h3>{displayedGuestName}</h3>
+                                {response.isEditingName ? (
+                                  <div className="rsvp-guest-name-editor">
+                                    <label className="sr-only" htmlFor={`guest-name-${guest.id}`}>
+                                      Edit guest name for {displayedGuestName}
+                                    </label>
+                                    <input
+                                      id={`guest-name-${guest.id}`}
+                                      className="modal-input"
+                                      type="text"
+                                      value={response.guestName}
+                                      onChange={(event) => updateGuestName(guest.id, event.target.value)}
+                                      autoComplete="name"
+                                      required
+                                    />
+                                    <button
+                                      type="button"
+                                      className="rsvp-inline-action"
+                                      onClick={() => setGuestNameEditing(guest.id, false)}
+                                    >
+                                      Done
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    className="rsvp-inline-action"
+                                    onClick={() => setGuestNameEditing(guest.id, true)}
+                                  >
+                                    Edit
+                                  </button>
+                                )}
                               </div>
-                              <div className="rsvp-choice-group" role="group" aria-label={`Attendance for ${guest.name}`}>
+                              <div className="rsvp-choice-group" role="group" aria-label={`Attendance for ${displayedGuestName}`}>
                                 <button
                                   type="button"
                                   className={`rsvp-choice ${response.attendance === 'yes' ? 'is-active' : ''}`}

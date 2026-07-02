@@ -730,6 +730,47 @@ button {
   gap: 16px;
 }
 
+.rsvp-guest-name-block {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.rsvp-guest-label {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: rgba(255, 244, 229, 0.88);
+}
+
+.rsvp-guest-name-editor {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.rsvp-inline-action {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .rsvp-choice-group {
   display: inline-flex;
   gap: 10px;
