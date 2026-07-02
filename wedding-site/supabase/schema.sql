@@ -40,11 +40,15 @@ create table if not exists public.rsvp_guest_responses (
   id uuid primary key default gen_random_uuid(),
   submission_id uuid not null references public.rsvp_submissions(id) on delete cascade,
   guest_id uuid not null references public.rsvp_guests(id) on delete cascade,
+  submitted_guest_name text not null default '',
   attending boolean not null,
   dietary_restrictions text not null default '',
   created_at timestamptz not null default timezone('utc', now()),
   unique (submission_id, guest_id)
 );
+
+alter table public.rsvp_guest_responses
+add column if not exists submitted_guest_name text not null default '';
 
 create index if not exists rsvp_guests_household_id_idx on public.rsvp_guests(household_id);
 create index if not exists rsvp_guest_responses_submission_id_idx on public.rsvp_guest_responses(submission_id);

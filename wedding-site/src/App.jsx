@@ -142,6 +142,8 @@ function createInitialGuestResponses(guests) {
     guests.map((guest) => [
       guest.id,
       {
+        guestName: guest.name,
+        isEditingName: false,
         attendance: '',
         dietaryRestrictions: '',
       },
@@ -255,6 +257,26 @@ export default function App() {
     }))
   }
 
+  const updateGuestName = (guestId, guestName) => {
+    setGuestResponses((current) => ({
+      ...current,
+      [guestId]: {
+        ...current[guestId],
+        guestName,
+      },
+    }))
+  }
+
+  const setGuestNameEditing = (guestId, isEditingName) => {
+    setGuestResponses((current) => ({
+      ...current,
+      [guestId]: {
+        ...current[guestId],
+        isEditingName,
+      },
+    }))
+  }
+
   const updateDietaryRestrictions = (guestId, dietaryRestrictions) => {
     setGuestResponses((current) => ({
       ...current,
@@ -274,6 +296,13 @@ export default function App() {
       return
     }
 
+    const hasBlankGuestNames = householdGuests.some((guest) => !(guestResponses[guest.id]?.guestName ?? guest.name).trim())
+
+    if (hasBlankGuestNames) {
+      setRsvpError('Please provide a name for each invited guest before submitting.')
+      return
+    }
+
     setIsSubmittingRsvp(true)
 
     try {
@@ -282,7 +311,7 @@ export default function App() {
         householdName: household.householdName,
         guests: householdGuests.map((guest) => ({
           guestId: guest.id,
-          guestName: guest.name,
+          guestName: guestResponses[guest.id]?.guestName?.trim() ?? guest.name,
           attending: guestResponses[guest.id]?.attendance === 'yes',
           dietaryRestrictions: guestResponses[guest.id]?.dietaryRestrictions?.trim() ?? '',
         })),
@@ -536,7 +565,7 @@ export default function App() {
             <h2 id="rsvp-modal-title">Find your invitation and respond for your invited guests.</h2>
             <p>
               Enter one guest name from your invitation. Once we find that guest, we’ll show everyone in the same household so you can mark who will attend
-              and add dietary restrictions for anyone joining us.
+              and add dietary restrictions for anyone joining us. You can also correct a guest name before submitting if we misspelled it.
             </p>
 
             {isMockRsvpMode ? (
@@ -605,13 +634,61 @@ export default function App() {
 
                     <div className="rsvp-guest-list">
                       {household.guests.map((guest) => {
-                        const response = guestResponses[guest.id] ?? { attendance: '', dietaryRestrictions: '' }
+                        const response = guestResponses[guest.id] ?? {
+                          guestName: guest.name,
+                          isEditingName: false,
+                          attendance: '',
+                          dietaryRestrictions: '',
+                        }
+                        const displayedGuestName = response.guestName?.trim() || guest.name
 
                         return (
                           <article className="rsvp-guest-card" key={guest.id}>
                             <div className="rsvp-guest-header">
-                              <h3>{guest.name}</h3>
-                              <div className="rsvp-choice-group" role="group" aria-label={`Attendance for ${guest.name}`}>
+                              <div className="rsvp-guest-name-block">
+                                <p className="rsvp-guest-label">Guest name</p>
+                                <div className="rsvp-guest-name-row">
+                                  <h3>{displayedGuestName}</h3>
+                                  {!response.isEditingName ? (
+                                    <button
+                                      type="button"
+                                      className="rsvp-icon-action"
+                                      onClick={() => setGuestNameEditing(guest.id, true)}
+                                      aria-label={`Edit guest name for ${displayedGuestName}`}
+                                      title="Edit guest name"
+                                    >
+                                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M4 20h4l10.5-10.5-4-4L4 16v4Zm14.7-11.3 1.6-1.6a1.1 1.1 0 0 0 0-1.6l-1.8-1.8a1.1 1.1 0 0 0-1.6 0l-1.6 1.6 3.4 3.4Z" />
+                                      </svg>
+                                    </button>
+                                  ) : null}
+                                </div>
+                                {response.isEditingName ? (
+                                  <div className="rsvp-guest-name-editor">
+                                    <label className="sr-only" htmlFor={`guest-name-${guest.id}`}>
+                                      Edit guest name for {displayedGuestName}
+                                    </label>
+                                    <input
+                                      id={`guest-name-${guest.id}`}
+                                      className="modal-input"
+                                      type="text"
+                                      value={response.guestName}
+                                      onChange={(event) => updateGuestName(guest.id, event.target.value)}
+                                      autoComplete="name"
+                                      required
+                                      autoFocus
+                                    />
+                                    <button
+                                      type="button"
+                                      className="rsvp-inline-action"
+                                      onClick={() => setGuestNameEditing(guest.id, false)}
+                                    >
+                                      Done
+                                    </button>
+                                  </div>
+                                ) : null}
+                              </div>
+                              <div className="rsvp-choice-group" role="group" aria-label={`Attendance for ${displayedGuestName}`}>
                                 <button
                                   type="button"
                                   className={`rsvp-choice ${response.attendance === 'yes' ? 'is-active' : ''}`}
