@@ -142,6 +142,7 @@ function createInitialGuestResponses(guests) {
     guests.map((guest) => [
       guest.id,
       {
+        guestName: guest.name,
         attendance: '',
         dietaryRestrictions: '',
       },
@@ -255,6 +256,16 @@ export default function App() {
     }))
   }
 
+  const updateGuestName = (guestId, guestName) => {
+    setGuestResponses((current) => ({
+      ...current,
+      [guestId]: {
+        ...current[guestId],
+        guestName,
+      },
+    }))
+  }
+
   const updateDietaryRestrictions = (guestId, dietaryRestrictions) => {
     setGuestResponses((current) => ({
       ...current,
@@ -274,6 +285,13 @@ export default function App() {
       return
     }
 
+    const hasBlankGuestNames = householdGuests.some((guest) => !guestResponses[guest.id]?.guestName?.trim())
+
+    if (hasBlankGuestNames) {
+      setRsvpError('Please provide a name for each invited guest before submitting.')
+      return
+    }
+
     setIsSubmittingRsvp(true)
 
     try {
@@ -282,7 +300,7 @@ export default function App() {
         householdName: household.householdName,
         guests: householdGuests.map((guest) => ({
           guestId: guest.id,
-          guestName: guest.name,
+          guestName: guestResponses[guest.id]?.guestName?.trim() ?? guest.name,
           attending: guestResponses[guest.id]?.attendance === 'yes',
           dietaryRestrictions: guestResponses[guest.id]?.dietaryRestrictions?.trim() ?? '',
         })),
@@ -536,7 +554,7 @@ export default function App() {
             <h2 id="rsvp-modal-title">Find your invitation and respond for your invited guests.</h2>
             <p>
               Enter one guest name from your invitation. Once we find that guest, we’ll show everyone in the same household so you can mark who will attend
-              and add dietary restrictions for anyone joining us.
+              and add dietary restrictions for anyone joining us. You can also correct a guest name before submitting if we misspelled it.
             </p>
 
             {isMockRsvpMode ? (
@@ -605,12 +623,25 @@ export default function App() {
 
                     <div className="rsvp-guest-list">
                       {household.guests.map((guest) => {
-                        const response = guestResponses[guest.id] ?? { attendance: '', dietaryRestrictions: '' }
+                        const response = guestResponses[guest.id] ?? { guestName: guest.name, attendance: '', dietaryRestrictions: '' }
 
                         return (
                           <article className="rsvp-guest-card" key={guest.id}>
                             <div className="rsvp-guest-header">
-                              <h3>{guest.name}</h3>
+                              <div className="rsvp-dietary-block">
+                                <label className="modal-label" htmlFor={`guest-name-${guest.id}`}>
+                                  Guest name
+                                </label>
+                                <input
+                                  id={`guest-name-${guest.id}`}
+                                  className="modal-input"
+                                  type="text"
+                                  value={response.guestName}
+                                  onChange={(event) => updateGuestName(guest.id, event.target.value)}
+                                  autoComplete="name"
+                                  required
+                                />
+                              </div>
                               <div className="rsvp-choice-group" role="group" aria-label={`Attendance for ${guest.name}`}>
                                 <button
                                   type="button"

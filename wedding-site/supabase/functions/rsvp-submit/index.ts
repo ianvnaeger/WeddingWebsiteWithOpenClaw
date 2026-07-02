@@ -26,6 +26,10 @@ serve(async (request) => {
       return json({ error: 'Each invited guest must have an attendance response.' }, 400)
     }
 
+    if (!guests.every((guest: GuestSubmission) => typeof guest.guestName === 'string' && guest.guestName.trim().length > 0)) {
+      return json({ error: 'Each invited guest must include a name.' }, 400)
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -105,6 +109,7 @@ serve(async (request) => {
     const responseRows = guests.map((guest: GuestSubmission) => ({
       submission_id: submissionId,
       guest_id: guest.guestId,
+      submitted_guest_name: guest.guestName.trim(),
       attending: guest.attending,
       dietary_restrictions: guest.attending ? guest.dietaryRestrictions?.trim() ?? '' : '',
     }))
