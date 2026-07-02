@@ -647,7 +647,22 @@ export default function App() {
                             <div className="rsvp-guest-header">
                               <div className="rsvp-guest-name-block">
                                 <p className="rsvp-guest-label">Guest name</p>
-                                <h3>{displayedGuestName}</h3>
+                                <div className="rsvp-guest-name-row">
+                                  <h3>{displayedGuestName}</h3>
+                                  {!response.isEditingName ? (
+                                    <button
+                                      type="button"
+                                      className="rsvp-icon-action"
+                                      onClick={() => setGuestNameEditing(guest.id, true)}
+                                      aria-label={`Edit guest name for ${displayedGuestName}`}
+                                      title="Edit guest name"
+                                    >
+                                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M4 20h4l10.5-10.5-4-4L4 16v4Zm14.7-11.3 1.6-1.6a1.1 1.1 0 0 0 0-1.6l-1.8-1.8a1.1 1.1 0 0 0-1.6 0l-1.6 1.6 3.4 3.4Z" />
+                                      </svg>
+                                    </button>
+                                  ) : null}
+                                </div>
                                 {response.isEditingName ? (
                                   <div className="rsvp-guest-name-editor">
                                     <label className="sr-only" htmlFor={`guest-name-${guest.id}`}>
@@ -661,6 +676,7 @@ export default function App() {
                                       onChange={(event) => updateGuestName(guest.id, event.target.value)}
                                       autoComplete="name"
                                       required
+                                      autoFocus
                                     />
                                     <button
                                       type="button"
@@ -670,15 +686,7 @@ export default function App() {
                                       Done
                                     </button>
                                   </div>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    className="rsvp-inline-action"
-                                    onClick={() => setGuestNameEditing(guest.id, true)}
-                                  >
-                                    Edit
-                                  </button>
-                                )}
+                                ) : null}
                               </div>
                               <div className="rsvp-choice-group" role="group" aria-label={`Attendance for ${displayedGuestName}`}>
                                 <button

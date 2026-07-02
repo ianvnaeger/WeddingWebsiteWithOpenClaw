@@ -736,6 +736,16 @@ button {
   min-width: 0;
 }
 
+.rsvp-guest-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rsvp-guest-name-row h3 {
+  min-width: 0;
+}
+
 .rsvp-guest-label {
   margin: 0;
   font-size: 0.92rem;
@@ -748,6 +758,26 @@ button {
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.rsvp-icon-action {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  flex: 0 0 auto;
+}
+
+.rsvp-icon-action svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
 }
 
 .rsvp-inline-action {
