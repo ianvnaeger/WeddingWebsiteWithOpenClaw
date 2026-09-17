@@ -9,6 +9,9 @@ wedding-site/.env
 wedding-site/.env.*
 !.env.example
 
+# Supabase CLI local link/cache metadata
+wedding-site/supabase/.temp/
+
 # macOS
 .DS_Store
 
