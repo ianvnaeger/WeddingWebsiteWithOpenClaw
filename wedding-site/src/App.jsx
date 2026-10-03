@@ -28,7 +28,7 @@ const detailCards = [
     lines: [
       'Cocktail attire',
       'We invite guests to wear polished cocktail attire, such as suits, jackets, dresses, or other elevated eveningwear.',
-      'We also ask guests to refrain from wearing overt Halloween costumes during the ceremony itself.',
+      'We also ask guests to refrain from wearing overt Halloween costumes during the ceremony itself. However, guests are welcome to (but not required) change into costumes for the reception.',
     ],
   },
 ]
