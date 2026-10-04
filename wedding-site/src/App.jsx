@@ -14,6 +14,7 @@ const detailCards = [
   {
     title: 'Ceremony',
     lines: ['Saturday, October 31, 2026', '5:00 PM', 'Union Wedding Venue • 1721 Baltimore Ave, Kansas City, MO 64108'],
+    showParkingInstructions: true,
   },
   {
     title: 'Reception',
@@ -28,10 +29,21 @@ const detailCards = [
     lines: [
       'Cocktail attire',
       'We invite guests to wear polished cocktail attire, such as suits, jackets, dresses, or other elevated eveningwear.',
-      'We also ask guests to refrain from wearing overt Halloween costumes during the ceremony itself. However, guests are welcome to (but not required) change into costumes for the reception.',
+      'We also ask guests to refrain from wearing overt Halloween costumes during the ceremony itself. However, guests are welcome (but not required) to change into costumes for the reception.',
     ],
   },
 ]
+
+const welcomeParty = {
+  title: 'Welcome Party',
+  lines: [
+    'Friday, October 30, 2026',
+    '7:00PM',
+    'King G Delicatessen - Pit Bar • 500 E 18th St, Kansas City, MO 64108',
+    'Join us for a casual welcome party if you’re in town! Space in the Pit Bar is limited, so we may spill into the rest of King G—but we’ll squeeze in as many people as they’ll let us.',
+    'Dress Code: Halloween Costumes!',
+  ],
+}
 
 const registryLinks = [
   { label: 'Amazon Registry', href: 'https://www.amazon.com/wedding/guest-view/1VVV5G4VUWTIF' },
@@ -130,7 +142,7 @@ const galleryPhotos = [
 function SectionHeading({ kicker, title, narrow = false, children }) {
   return (
     <div className={`section-copy ${narrow ? 'narrow' : ''}`}>
-      <p className="kicker">{kicker}</p>
+      {kicker && <p className="kicker">{kicker}</p>}
       <h2>{title}</h2>
       {children}
     </div>
@@ -158,6 +170,7 @@ function isLookupCandidate(candidate) {
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [galleryIndex, setGalleryIndex] = useState(0)
+  const [isParkingModalOpen, setIsParkingModalOpen] = useState(false)
   const [isRsvpModalOpen, setIsRsvpModalOpen] = useState(false)
   const [guestNameInput, setGuestNameInput] = useState('')
   const [lookupError, setLookupError] = useState('')
@@ -344,11 +357,11 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen || isRsvpModalOpen ? 'hidden' : ''
+    document.body.style.overflow = menuOpen || isParkingModalOpen || isRsvpModalOpen ? 'hidden' : ''
     return () => {
       document.body.style.overflow = ''
     }
-  }, [isRsvpModalOpen, menuOpen])
+  }, [isParkingModalOpen, isRsvpModalOpen, menuOpen])
 
   return (
     <>
@@ -399,14 +412,33 @@ export default function App() {
 
       <main>
         <section id="details" className="section">
-          <SectionHeading kicker="Wedding details" title="The weekend at a glance." />
+          <SectionHeading title="The weekend at a glance." />
+          <article className="info-card welcome-party-card">
+            <h3>{welcomeParty.title}</h3>
+            {welcomeParty.lines.map((line, index) => (
+              <p key={line} className={index === 0 ? 'info-card-lead' : ''}>{line}</p>
+            ))}
+          </article>
+
+          <p className="kicker wedding-details-label">Wedding details</p>
           <div className="grid three-up">
             {detailCards.map((card) => (
-              <article className="info-card" key={card.title}>
+              <article className={`info-card ${card.showParkingInstructions ? 'info-card-with-action' : ''}`} key={card.title}>
                 <h3>{card.title}</h3>
                 {card.lines.map((line, index) => (
                   <p key={line} className={index === 0 ? 'info-card-lead' : ''}>{line}</p>
                 ))}
+                {card.showParkingInstructions && (
+                  <div className="info-card-action-row">
+                    <button
+                      type="button"
+                      className="button button-secondary info-card-action"
+                      onClick={() => setIsParkingModalOpen(true)}
+                    >
+                      Parking instructions
+                    </button>
+                  </div>
+                )}
               </article>
             ))}
           </div>
@@ -544,6 +576,49 @@ export default function App() {
           </div>
         </section>
       </main>
+
+      {isParkingModalOpen ? (
+        <div
+          className="modal-shell parking-modal-shell"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Parking instructions"
+          tabIndex={-1}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') setIsParkingModalOpen(false)
+          }}
+        >
+          <div className="modal-backdrop" onClick={() => setIsParkingModalOpen(false)} />
+          <div className="modal-card card-surface parking-modal-card">
+            <button
+              type="button"
+              className="modal-close"
+              onClick={() => setIsParkingModalOpen(false)}
+              aria-label="Close parking instructions"
+              autoFocus
+            >
+              ×
+            </button>
+            <div className="parking-modal-toolbar">
+              <p className="kicker">Parking</p>
+            </div>
+            <div className="parking-document-frame">
+              <iframe
+                src={`${withBase('documents/union-wedding-venue-parking.pdf')}#view=FitH`}
+                title="Union Wedding Venue parking instructions PDF"
+              />
+            </div>
+            <a
+              className="button button-secondary parking-document-link"
+              href={withBase('documents/union-wedding-venue-parking.pdf')}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open PDF in a new tab
+            </a>
+          </div>
+        </div>
+      ) : null}
 
       {isRsvpModalOpen ? (
         <div

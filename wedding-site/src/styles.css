@@ -307,6 +307,28 @@ button {
   font-size: 1.03rem;
 }
 
+.info-card-action {
+  margin: 0;
+}
+
+.info-card-action-row {
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.info-card-with-action {
+  display: flex;
+  flex-direction: column;
+}
+
+.welcome-party-card {
+  width: 100%;
+}
+
+.wedding-details-label {
+  margin-top: 36px;
+}
+
 .muted-band {
   padding: clamp(28px, 4vw, 36px);
   border: 1px solid rgba(132, 194, 159, 0.16);
@@ -568,6 +590,51 @@ button {
   width: min(100%, 760px);
   max-height: min(88vh, 980px);
   overflow: auto;
+}
+
+.parking-modal-shell {
+  padding: 12px;
+}
+
+.parking-modal-card {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 16px;
+  width: min(100%, 1100px);
+  height: min(94dvh, 1000px);
+  padding: 24px;
+}
+
+.parking-modal-toolbar {
+  min-height: 42px;
+  padding-right: 56px;
+}
+
+.parking-modal-toolbar .kicker {
+  margin: 0;
+}
+
+.parking-modal-card .modal-close {
+  z-index: 2;
+}
+
+.parking-document-frame {
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: white;
+}
+
+.parking-document-frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.parking-document-link {
+  justify-self: start;
 }
 
 .modal-card h2 {
@@ -943,6 +1010,25 @@ button {
 
   .modal-actions {
     display: grid;
+  }
+
+  .parking-modal-shell {
+    padding: 0;
+  }
+
+  .parking-modal-card {
+    width: 100%;
+    height: 100dvh;
+    padding: 16px 12px 12px;
+    border-radius: 0;
+  }
+
+  .parking-document-frame {
+    border-radius: 14px;
+  }
+
+  .parking-document-link {
+    width: 100%;
   }
 
   .rsvp-choice-group {
